@@ -39,12 +39,11 @@ int main()
     printf("\n");
     point_t* element;
     list_search(list, 2, &element);
-    //print_point(2, element);
     print_point(element, 2);
 
     // Traverse list
     printf("\n");
-    list_travel(list, &print_point);
+    list_walk(list, &print_point);
 
     // Remove element
     list_remove(list, 2, &element);
@@ -53,16 +52,16 @@ int main()
 
     // Traverse list
     printf("\n");
-    list_travel(list, &print_point);
+    list_walk(list, &print_point);
 
     // Traverse list and change cost
     printf("\n");
-    list_travel(list, (callback_t) &change_cost);
-    list_travel(list, &print_point);
+    list_walk(list, (callback_t) &change_cost);
+    list_walk(list, &print_point);
 
     // Clean up
     printf("\n");
-    list_delete(list, (callback_t) &free);
+    list_free(list, NULL);
 
     return 0;
 }
