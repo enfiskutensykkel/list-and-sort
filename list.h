@@ -7,12 +7,19 @@
 /* List type */
 typedef struct list* list_t;
 
+/* Callback type */
+typedef void (*callback_t)(int key, point_t* elem);
+
+
+
 /* Initialize a list with a certain size
  * The list will grow when it gets full.
  *
  * Returns 0 on success and non-zero on failure.
  */
 int list_create(list_t* list, size_t initial_size);
+
+
 
 /* Find an element in a list
  * Searches for an element with a key equal to key.
@@ -22,6 +29,8 @@ int list_create(list_t* list, size_t initial_size);
  */
 int list_search(list_t list, int key, point_t** elem);
 
+
+
 /* Remove an element from a list
  * Searches for an element with a key equal to key.
  *
@@ -30,12 +39,16 @@ int list_search(list_t list, int key, point_t** elem);
  */
 int list_remove(list_t list, int key, point_t** elem);
 
+
+
 /* Insert an element into a list
  * Inserts an element into a list using key.
  *
  * Returns 0 on success and non-zero on failure.
  */
 int list_insert(list_t list, int key, point_t* elem);
+
+
 
 /* Delete a list
  * Deletes the list and cleans up the resources.
@@ -44,5 +57,14 @@ int list_insert(list_t list, int key, point_t* elem);
  * Returns 0 on success and non-zero on failure.
  */
 int list_delete(list_t list);
+
+
+
+/* Traverse a list
+ * Traverses a list and calls a callback function with each element.
+ *
+ * Returns non-zero on failure.
+ */
+int list_travel(list_t list, callback_t cb);
 
 #endif
