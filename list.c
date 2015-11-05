@@ -94,7 +94,8 @@ int list_delete(list_t list, callback_t cb)
         {
             for (size_t i = 0; i < list->elements; ++i)
             {
-                cb(list->list[i].key, list->list[i].point);
+                cb(list->list[i].point, list->list[i].key);
+                //cb(list->list[i].key, list->list[i].point);
             }
 
             free(list->list);
@@ -214,7 +215,8 @@ int list_travel(list_t list, callback_t cb)
 
     for (size_t i = 0; i < list->elements; ++i)
     {
-        cb(list->list[i].key, list->list[i].point);
+        //cb(list->list[i].key, list->list[i].point);
+        cb(list->list[i].point, list->list[i].key);
     }
 
     list->locked = 0;

@@ -8,7 +8,8 @@
 typedef struct list* list_t;
 
 /* Callback type */
-typedef void (*callback_t)(int key, point_t* elem);
+//typedef void (*callback_t)(int key, point_t* elem);
+typedef void (*callback_t)(point_t* elem, int key);
 
 
 

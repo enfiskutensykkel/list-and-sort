@@ -2,21 +2,16 @@
 #include "common.h"
 #include "list.h"
 
-void print_point(int key, point_t* point)
+void print_point(point_t* point, int key)
 {
     printf("point %d: (%d,%d) has cost %d\n", key, point->x, point->y, point->cost);
 }
 
-void change_cost(int key, point_t* point)
+void change_cost(point_t* point)
 {
-    point->cost = key * 2;
+    point->cost++;
 }
 
-void free_point(int key, point_t* point)
-{
-    printf("freeing point %d\n", key);
-    free(point);
-}
 
 int main() 
 {
@@ -36,14 +31,16 @@ int main()
         point->cost = i;
 
         list_insert(list, 9 - i, point);
-        print_point(9 - i, point);
+        //print_point(9 - i, point);
+        print_point(point, 9 - i);
     }
 
     // Find element
     printf("\n");
     point_t* element;
     list_search(list, 2, &element);
-    print_point(2, element);
+    //print_point(2, element);
+    print_point(element, 2);
 
     // Traverse list
     printf("\n");
@@ -60,12 +57,12 @@ int main()
 
     // Traverse list and change cost
     printf("\n");
-    list_travel(list, &change_cost);
+    list_travel(list, (callback_t) &change_cost);
     list_travel(list, &print_point);
 
     // Clean up
     printf("\n");
-    list_delete(list, &free_point);
+    list_delete(list, (callback_t) &free);
 
     return 0;
 }
