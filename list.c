@@ -80,7 +80,7 @@ int list_create(list_t* list, size_t init_size)
     return 0;
 }
 
-int list_delete(list_t list)
+int list_delete(list_t list, callback_t cb)
 {
     if (list != NULL)
     {
@@ -94,10 +94,7 @@ int list_delete(list_t list)
         {
             for (size_t i = 0; i < list->elements; ++i)
             {
-                if (list->list[i].point != NULL)
-                {
-                    free(list->list[i].point);
-                }
+                cb(list->list[i].key, list->list[i].point);
             }
 
             free(list->list);

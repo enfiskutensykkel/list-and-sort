@@ -52,11 +52,11 @@ int list_insert(list_t list, int key, point_t* elem);
 
 /* Delete a list
  * Deletes the list and cleans up the resources.
- * NB! If list is not empty, list_delete() will free all elements.
+ * NB! If list is not empty, the supplied callback must free elements.
  *
  * Returns 0 on success and non-zero on failure.
  */
-int list_delete(list_t list);
+int list_delete(list_t list, callback_t cb);
 
 
 
