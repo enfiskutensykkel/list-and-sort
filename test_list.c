@@ -56,7 +56,7 @@ int main()
 
     // Traverse list and change cost
     printf("\n");
-    list_walk(list, (callback_t) &change_cost);
+    list_walk(list, (list_cb_t) &change_cost);
     list_walk(list, &print_point);
 
     // Clean up

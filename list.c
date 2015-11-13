@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <errno.h>
-#include "common.h"
 #include "list.h"
+#include "common.h"
 
 
 /* Wrapper for list element entries */
@@ -61,7 +61,7 @@ static size_t list_find(list_t list, int key)
         }
     }
 
-    if (key == list->list[0].key)
+    if (list->elements > 0 && key == list->list[0].key)
     {
         return 0;
     }
@@ -94,7 +94,7 @@ int list_create(list_t* list, size_t init_size)
 }
 
 
-int list_free(list_t list, callback_t cb)
+int list_free(list_t list, list_cb_t cb)
 {
     if (list->locked)
     {
@@ -106,7 +106,7 @@ int list_free(list_t list, callback_t cb)
     {
         if (cb == NULL)
         {
-            cb = (callback_t) &free;
+            cb = (list_cb_t) &free;
         }
 
         for (size_t i = 0; i < list->elements; ++i)
@@ -224,7 +224,7 @@ int list_search(list_t list, int key, point_t** elem)
 }
 
 
-int list_walk(list_t list, callback_t cb)
+int list_walk(list_t list, list_cb_t cb)
 {
     if (list->locked)
     {

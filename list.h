@@ -4,10 +4,7 @@
 #include "common.h"
 #include <stdlib.h>
 
-/* List handle type
- * 
- * Used internally by the API.
- */
+/* List handle type */
 typedef struct list* list_t;
 
 
@@ -22,7 +19,7 @@ typedef struct list* list_t;
  * NB! List operations are not permitted while traversing.
  *     However, changing the element itself is permitted.
  */
-typedef void (*callback_t)(point_t* elem, int key);
+typedef void (*list_cb_t)(point_t* elem, int key);
 
 
 
@@ -39,7 +36,7 @@ int list_create(list_t* list, size_t size);
 
 
 
-/* Get the number of elements in a list
+/* Get the number of elements in list
  *
  * Returns the number of elements in the specified list.
  *
@@ -61,7 +58,7 @@ size_t list_size(list_t list);
  *
  * Returns a negative value on failure.
  */
-int list_walk(list_t list, callback_t cb);
+int list_walk(list_t list, list_cb_t cb);
 
 
 
@@ -87,7 +84,7 @@ int list_search(list_t list, int key, point_t** elem);
  * key  - the key to use for the element
  * elem - the element to insert
  *
- * Returns negative value on failure.
+ * Returns a negative value on failure.
  */
 int list_insert(list_t list, int key, point_t* elem);
 
@@ -120,6 +117,6 @@ int list_remove(list_t list, int key, point_t** elem);
  *
  * Returns a negative value on failure.
  */
-int list_free(list_t list, callback_t cb);
+int list_free(list_t list, list_cb_t cb);
 
 #endif

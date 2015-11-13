@@ -1,4 +1,6 @@
 .*.swp
-test
+test-list
+test-heap
+dijkstra
 *.o
 .DS_Store
