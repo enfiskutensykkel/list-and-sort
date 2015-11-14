@@ -2,5 +2,6 @@
 test-list
 test-heap
 dijkstra
+astar
 *.o
 .DS_Store

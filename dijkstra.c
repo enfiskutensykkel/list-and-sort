@@ -10,7 +10,7 @@
 
 // Find shortest path from (0,0) to (4,4)
 // Should be    (0,0) -> (1,0) -> (2,1) -> (3,1) -> (4,2) -> (4,3) -> (4,4)
-// Total cost =   0   +    1    +   3   +    4    +   1    +   1   = 10
+// Total cost =   0   +    1    +   3   +    4    +   1    +   1    +   1   = 11
 int costs[5][5] = {
     // y -->
     {0, 4, 2, 1, 2}, 
@@ -24,12 +24,27 @@ int distance[5][5];
 
 point_t *prev[5][5];
 
+int reverse_path(point_t* vertex)
+{
+    if (prev[vertex->x][vertex->y] == vertex)
+    {
+        printf("(%d,%d) %d\n", vertex->x, vertex->y, vertex->cost);
+        return vertex->cost;
+    }
+
+    int cost = reverse_path(prev[vertex->x][vertex->y]);
+    printf("(%d,%d) %d\n", vertex->x, vertex->y, vertex->cost);
+    return cost + vertex->cost;
+}
+
 void init_graph(point_t* vertex)
 {
     distance[vertex->x][vertex->y] = INT_MAX;
     prev[vertex->x][vertex->y] = NULL;
 }
 
+// Implementation from:
+// https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm#Using_a_priority_queue
 void dijkstra(list_t graph, int width, int height, int source_id)
 {
     // initialize everything to have inifinite distance to source
@@ -40,6 +55,7 @@ void dijkstra(list_t graph, int width, int height, int source_id)
     list_search(graph, source_id, &source);
 
     // set distance to self to 0
+    prev[source->x][source->y] = source;
     distance[source->x][source->y] = 0;
 
     // create priority queue
@@ -103,16 +119,11 @@ int main()
 
     dijkstra(graph, 5, 5, 0);
 
-    point_t* ptr = prev[4][4];
+    point_t* ptr;
+    list_search(graph, (4 * 5) + 4, &ptr);
 
-    int total = 0;
-    while (ptr != NULL)
-    {
-        printf("(%d,%d) %d\n", ptr->x, ptr->y, ptr->cost);
-        total += ptr->cost;
-        ptr = prev[ptr->x][ptr->y];
-    }
-    printf("Total: %d\n", total);
+    int total = reverse_path(ptr);
+    printf("Total cost: %d\n", total);
 
     list_free(graph, (list_cb_t) &free);
 
