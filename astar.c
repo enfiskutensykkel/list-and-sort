@@ -26,13 +26,8 @@ point_t *prev[5][5];
 
 int heuristic_cost(point_t* start, point_t* goal)
 {
-    // TODO: Make some heuristic cost estimate
-    if (start == goal)
-    {
-        return 0;
-    }
-
-    return 1;
+    // TODO: Make some sane heuristic that doesn't rely on diagonal path
+    return (goal->x - start->y) + (goal->y - start->y);
 }
 
 int reverse_path(point_t* v, point_t* u)
@@ -40,12 +35,12 @@ int reverse_path(point_t* v, point_t* u)
     if (u == v)
     {
         printf("(%d,%d) %d\n", v->x, v->y, v->cost);
-        return v->cost + heuristic_cost(v, u);
+        return f_score[u->x][u->y]; 
     }
 
     int cost = reverse_path(v, prev[u->x][u->y]);
     printf("(%d,%d) %d\n", u->x, u->y, u->cost);
-    return cost + u->cost + heuristic_cost(v, u);
+    return cost + f_score[u->x][u->y]; 
 }
 
 void init_graph(point_t* vertex)
