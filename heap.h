@@ -80,7 +80,6 @@ int heap_remove(heap_t heap, point_t** elem);
  * cb   - user-defined callback or NULL
  *
  * NB! The user-defined callback must manually free element data.
- *     If NULL is given, then free() is called on the element.
  *
  * Returns a negative value on failure.
  */

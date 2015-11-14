@@ -100,14 +100,12 @@ int heap_free(heap_t heap, heap_cb_t cb)
 
     if (heap->heap != NULL)
     {
-        if (cb == NULL)
+        if (cb != NULL)
         {
-            cb = (heap_cb_t) &free;
-        }
-
-        for (size_t i = 0; i < heap->elements; ++i)
-        {
-            cb(heap->heap[i].point);
+            for (size_t i = 0; i < heap->elements; ++i)
+            {
+                cb(heap->heap[i].point);
+            }
         }
 
         free(heap->heap);

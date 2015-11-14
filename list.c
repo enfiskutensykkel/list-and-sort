@@ -41,29 +41,27 @@ static void list_sort(list_t list)
     }
 }
 
-
 /* Find an element in the list using binary search */
 static size_t list_find(list_t list, int key)
 {
-    for (size_t i = list->elements / 2; i > 0 && i < list->elements; )
-    {
-        if (key < list->list[i].key)
-        {
-            i /= 2;
-        }
-        else if (key > list->list[i].key)
-        {
-            i += i / 2;
-        }
-        else
-        {
-            return i;
-        }
-    }
+    size_t min = 0, max = list->elements - 1;
 
-    if (list->elements > 0 && key == list->list[0].key)
+    while (min <= max)
     {
-        return 0;
+        size_t mid = min + (max - min) / 2;
+
+        if (list->list[mid].key == key)
+        {
+            return mid;
+        }
+        else if (list->list[mid].key < key)
+        {
+            min = mid + 1;
+        }
+        else 
+        {
+            max = mid - 1;
+        }
     }
 
     return list->max_size;
@@ -104,14 +102,12 @@ int list_free(list_t list, list_cb_t cb)
 
     if (list->list != NULL)
     {
-        if (cb == NULL)
+        if (cb != NULL)
         {
-            cb = (list_cb_t) &free;
-        }
-
-        for (size_t i = 0; i < list->elements; ++i)
-        {
-            cb(list->list[i].point, list->list[i].key);
+            for (size_t i = 0; i < list->elements; ++i)
+            {
+                cb(list->list[i].point, list->list[i].key);
+            }
         }
 
         free(list->list);

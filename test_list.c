@@ -61,7 +61,7 @@ int main()
 
     // Clean up
     printf("\n");
-    list_free(list, NULL);
+    list_free(list, (list_cb_t) &free);
 
     return 0;
 }

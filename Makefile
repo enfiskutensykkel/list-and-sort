@@ -4,7 +4,7 @@ CFLAGS := -Wall -Wextra -pedantic -Werror -g
 
 .PHONY: all clean test-list test-heap dijkstra
 
-all: test-list test-heap 
+all: test-list test-heap dijkstra
 
 dijkstra: $(OBJS) dijkstra.o
 	$(CC) -o $@ $^

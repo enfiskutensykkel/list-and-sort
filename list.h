@@ -113,7 +113,6 @@ int list_remove(list_t list, int key, point_t** elem);
  * cb   - user-defined callback or NULL
  *
  * NB! The user-defined callback must manually free element data.
- *     If NULL is given, then free() is called on the element data.
  *
  * Returns a negative value on failure.
  */
