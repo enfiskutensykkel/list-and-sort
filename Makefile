@@ -19,5 +19,5 @@ clean:
 	-$(RM) test-list test-heap dijkstra $(OBJS)
 
 %.o: %.c
-	$(CC) -c $(CFLAGS) -o $@ $<
+	$(CC) -std=c99 -c $(CFLAGS) -o $@ $<
 
