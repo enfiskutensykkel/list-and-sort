@@ -10,7 +10,6 @@
 
 // Find shortest path from (0,0) to (4,4)
 // Should be    (0,0) -> (1,0) -> (2,1) -> (3,1) -> (4,2) -> (4,3) -> (4,4)
-// Total cost =   0   +    1    +   3   +    4    +   1    +   1    +   1   = 11
 int costs[5][5] = {
     // y -->
     {0, 4, 2, 1, 2}, 
@@ -41,12 +40,12 @@ int reverse_path(point_t* v, point_t* u)
     if (u == v)
     {
         printf("(%d,%d) %d\n", v->x, v->y, v->cost);
-        return v->cost;
+        return v->cost + heuristic_cost(v, u);
     }
 
     int cost = reverse_path(v, prev[u->x][u->y]);
     printf("(%d,%d) %d\n", u->x, u->y, u->cost);
-    return cost + u->cost;
+    return cost + u->cost + heuristic_cost(v, u);
 }
 
 void init_graph(point_t* vertex)
