@@ -32,13 +32,17 @@ void init_graph(point_t* vertex)
 
 void dijkstra(list_t graph, int width, int height, int source_id)
 {
+    // initialize everything to have inifinite distance to source
     list_walk(graph, (list_cb_t) &init_graph);
 
+    // find source node
     point_t* source;
     list_search(graph, source_id, &source);
 
+    // set distance to self to 0
     distance[source->x][source->y] = 0;
 
+    // create priority queue
     heap_t queue;
     heap_create(&queue, width * height);
 
@@ -46,18 +50,21 @@ void dijkstra(list_t graph, int width, int height, int source_id)
 
     while (heap_size(queue) > 0)
     {
+        // find vertex u with minimal cost
         point_t* u;
         heap_remove(queue, &u);
 
+        // for neighbour v to u
         for (int i = MAX(u->x - 1, 0); i <= MIN(u->x + 1, width - 1); ++i)
         {
             for (int j = MAX(u->y - 1, 0); j <= MIN(u->y + 1, height - 1); ++j)
             {
-                if (i != u->x || j != u->y)
+                if (i != u->x || j != u->y) // u can't be its own neighbour
                 {
+                    // is the current distance to u shorter through v?
                     int alt = distance[u->x][u->y] + costs[i][j];
 
-                    if (alt < distance[i][j])
+                    if (alt < distance[i][j]) 
                     {
                         distance[i][j] = alt;
                         prev[i][j] = u;
