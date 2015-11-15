@@ -1,26 +1,19 @@
-OBJS   := list.o heap.o
-CC     := gcc
-CFLAGS := -Wall -Wextra -pedantic -Werror -g
+CC      := gcc
+CFLAGS  := -Wall -Wextra -pedantic -Werror -g -Wno-unused-parameter
+OBJS    := list.o heap.o graph.o
+TARGETS := test-list test-heap dijkstra astar
 
-.PHONY: all clean test-list test-heap dijkstra astar
+.PHONY: all clean $(TARGETS)
 
-all: test-list test-heap dijkstra astar
-
-astar: $(OBJS) astar.o
-	$(CC) -o $@ $^
-
-dijkstra: $(OBJS) dijkstra.o
-	$(CC) -o $@ $^
-
-test-list: $(OBJS) test_list.o
-	$(CC) -o $@ $^
-
-test-heap: $(OBJS) test_heap.o
-	$(CC) -o $@ $^
+all: $(TARGETS)
 
 clean:
-	-$(RM) test-list test-heap dijkstra *.o
+	-$(RM) $(TARGETS) $(TARGETS:%=%.o) $(OBJS)
 
 %.o: %.c
 	$(CC) -std=c99 -c $(CFLAGS) -o $@ $<
+
+.SECONDEXPANSION:
+$(TARGETS): $(OBJS) $$(@).o
+	$(CC) -o $@ $^
 

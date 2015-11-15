@@ -4,9 +4,11 @@
 #include "common.h"
 #include "list.h"
 #include "heap.h"
+#include "graph.h"
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
+
 
 // Find shortest path from (0,0) to (4,4)
 // Should be    (0,0) -> (1,0) -> (2,1) -> (3,1) -> (4,2) -> (4,3) -> (4,4)
@@ -20,43 +22,15 @@ int costs[5][5] = {
     {5, 6, 1, 1, 1}
 };
 
-int distance[5][5];
 
-point_t *prev[5][5];
-
-int reverse_path(point_t* vertex)
-{
-    if (prev[vertex->x][vertex->y] == vertex)
-    {
-        printf("(%d,%d) %d\n", vertex->x, vertex->y, vertex->cost);
-        return vertex->cost;
-    }
-
-    int cost = reverse_path(prev[vertex->x][vertex->y]);
-    printf("(%d,%d) %d\n", vertex->x, vertex->y, vertex->cost);
-    return cost + vertex->cost;
-}
-
-void init_graph(point_t* vertex)
-{
-    distance[vertex->x][vertex->y] = INT_MAX;
-    prev[vertex->x][vertex->y] = NULL;
-}
 
 // Implementation from:
 // https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm#Using_a_priority_queue
-void dijkstra(list_t graph, int width, int height, int source_id)
+void dijkstra(list_t graph, int width, int height, point_t* source)
 {
-    // initialize everything to have inifinite distance to source
-    list_walk(graph, (list_cb_t) &init_graph);
-
-    // find source node
-    point_t* source;
-    list_search(graph, source_id, &source);
-
     // set distance to self to 0
-    prev[source->x][source->y] = source;
-    distance[source->x][source->y] = 0;
+    source->prev = source;
+    source->dist = 0;
 
     // create priority queue
     heap_t queue;
@@ -77,16 +51,15 @@ void dijkstra(list_t graph, int width, int height, int source_id)
             {
                 if (i != u->x || j != u->y) // u can't be its own neighbour
                 {
+                    point_t* v = graph_find(graph, width, height, i, j);
+
                     // is the current distance to u shorter through v?
-                    int alt = distance[u->x][u->y] + costs[i][j];
+                    int alt = u->dist + v->cost;
 
-                    if (alt < distance[i][j]) 
+                    if (alt < v->dist) 
                     {
-                        distance[i][j] = alt;
-                        prev[i][j] = u;
-
-                        point_t* v;
-                        list_search(graph, (i * width) + j, &v);
+                        v->dist = alt;
+                        v->prev = u;
 
                         heap_insert(queue, alt, v);
                     }
@@ -95,8 +68,15 @@ void dijkstra(list_t graph, int width, int height, int source_id)
         }
     }
 
-    heap_free(queue, NULL);
+    heap_free(queue, NULL, NULL);
 }
+
+
+void print_point(point_t* node)
+{
+    printf("(%d,%d)\n", node->x, node->y);
+}
+
 
 int main()
 {
@@ -107,25 +87,32 @@ int main()
     {
         for (int y = 0; y < 5; ++y)
         {
-            point_t* vertex = (point_t*) malloc(sizeof(point_t));
-            vertex->x = x;
-            vertex->y = y;
-            vertex->cost = costs[x][y];
+            // sets everything to have a distance of infinity
+            point_t* vertex = graph_vertex(graph, 5, 5, x, y, costs[x][y]);
 
-            printf("inserting vertex id=%d\n", (x * 5) + y);
-            list_insert(graph, (x * 5) + y, vertex);
+            printf("inserting vertex id=%d\n", vertex->id);
         }
     }
 
-    dijkstra(graph, 5, 5, 0);
+    point_t* start = graph_find(graph, 5, 5, 0, 0);
+    point_t* goal = graph_find(graph, 5, 5, 4, 4);
 
-    point_t* ptr;
-    list_search(graph, (4 * 5) + 4, &ptr);
+    dijkstra(graph, 5, 5, start);
 
-    int total = reverse_path(ptr);
-    printf("Total cost: %d\n", total);
+    printf("Shortest path from (%d,%d) to (%d,%d)\n",
+            start->x, start->y,
+            goal->x, goal->y
+          );
 
-    list_free(graph, (list_cb_t) &free);
+    graph_traverse(start, goal, (list_cb_t) &print_point, NULL);
+
+    printf("Shortest distance from (%d,%d) to (%d,%d) = %d\n", 
+            start->x, start->y, 
+            goal->x, goal->y, 
+            graph_distance(start, goal) // = goal->dist
+            );
+
+    list_free(graph, (list_cb_t) &free, NULL);
 
     return 0;
 }

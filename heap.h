@@ -14,8 +14,9 @@ typedef struct heap* heap_t;
  * Used for freeing up heap resources.
  * 
  * elem - current element
+ * data - user-supplied data
  */
-typedef void (*heap_cb_t)(point_t* elem);
+typedef void (*heap_cb_t)(point_t* elem, void* data);
 
 
 
@@ -78,11 +79,12 @@ int heap_remove(heap_t heap, point_t** elem);
  *
  * heap - the heap to destroy
  * cb   - user-defined callback or NULL
+ * data - user-defined data
  *
  * NB! The user-defined callback must manually free element data.
  *
  * Returns a negative value on failure.
  */
-int heap_free(heap_t heap, heap_cb_t cb);
+int heap_free(heap_t heap, heap_cb_t cb, void* data);
 
 #endif

@@ -40,7 +40,7 @@ int main()
         free(point);
     }
 
-    heap_free(heap, NULL);
+    heap_free(heap, NULL, NULL);
 
     return 0;
 }

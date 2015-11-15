@@ -4,9 +4,12 @@
 #include "common.h"
 #include "list.h"
 #include "heap.h"
+#include "graph.h"
+
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
+
 
 // Find shortest path from (0,0) to (4,4)
 // Should be    (0,0) -> (1,0) -> (2,1) -> (3,1) -> (4,2) -> (4,3) -> (4,4)
@@ -19,48 +22,26 @@ int costs[5][5] = {
     {5, 6, 1, 1, 1}
 };
 
-int g_score[5][5];
+// Heuristic cost estimates
 int f_score[5][5];
 
-point_t *prev[5][5];
 
-int heuristic_cost(point_t* start, point_t* goal)
+int heuristic_cost_estimate(point_t* start, point_t* goal)
 {
     // TODO: Make some sane heuristic that doesn't rely on diagonal path
     return (goal->x - start->y) + (goal->y - start->y);
 }
 
-int reverse_path(point_t* v, point_t* u)
-{
-    if (u == v)
-    {
-        printf("(%d,%d) %d\n", v->x, v->y, v->cost);
-        return f_score[u->x][u->y]; 
-    }
-
-    int cost = reverse_path(v, prev[u->x][u->y]);
-    printf("(%d,%d) %d\n", u->x, u->y, u->cost);
-    return cost + f_score[u->x][u->y]; 
-}
-
-void init_graph(point_t* vertex)
-{
-    g_score[vertex->x][vertex->y] = INT_MAX;
-    f_score[vertex->x][vertex->y] = INT_MAX;
-    prev[vertex->x][vertex->y] = NULL;
-}
 
 // Implementation from:
 // https://en.wikipedia.org/wiki/A*_search_algorithm#Pseudocode
 int a_star(list_t graph, int width, int height, point_t* start, point_t* goal)
 {
-    list_walk(graph, (list_cb_t) &init_graph);
-    
     list_t closed;
     list_create(&closed, width * height);
 
-    g_score[start->x][start->y] = 0;
-    f_score[start->x][start->y] = g_score[start->x][start->y] + heuristic_cost(start, goal);
+    start->dist = 0;
+    f_score[start->x][start->y] = start->dist + heuristic_cost_estimate(start, goal);
 
     heap_t open;
     heap_create(&open, width * height);
@@ -75,46 +56,58 @@ int a_star(list_t graph, int width, int height, point_t* start, point_t* goal)
 
         if (current == goal)
         {
-            list_free(closed, NULL);
-            heap_free(open, NULL);
+            list_free(closed, NULL, NULL);
+            heap_free(open, NULL, NULL);
             return EXIT_SUCCESS;
         }
 
         // remove from open list and insert into closed list
-        list_insert(closed, (current->x * width) + current->y, current);
+        list_insert(closed, current->id, current);
 
         // for neighbours of current
         for (int i = MAX(current->x - 1, 0); i <= MIN(current->x + 1, width - 1); ++i)
         {
             for (int j = MAX(current->y - 1, 0); j <= MIN(current->y + 1, height - 1); ++j)
             {
-                int neighbour_id = i * width + j;
+                point_t* neighbour = graph_find(graph, width, height, i, j);
 
-                if (list_search(closed, neighbour_id, NULL))
+                if (list_search(closed, neighbour->id, NULL))
                 {
                     continue; // ignore neighbour which is already evaluated
                 }
 
-                int tentative_g_score = g_score[current->x][current->y] + costs[i][j];
-                if (tentative_g_score < g_score[i][j])
+                int tentative_g_score = current->dist + neighbour->cost;
+
+                if (tentative_g_score < neighbour->dist)
                 {
-                    point_t* neighbour;
-                    list_search(graph, neighbour_id, &neighbour);
+                    neighbour->prev = current;
+                    neighbour->dist = tentative_g_score;
+                    f_score[i][j] = neighbour->dist + heuristic_cost_estimate(neighbour, goal);
 
-                    prev[i][j] = current;
-                    g_score[i][j] = tentative_g_score;
-                    f_score[i][j] = g_score[i][j] + heuristic_cost(neighbour, goal);
-
-                    heap_insert(open, neighbour_id, neighbour);
+                    heap_insert(open, neighbour->dist, neighbour);
                 }
             }
         }
     }
 
-    list_free(closed, NULL);
-    heap_free(open, NULL);
+    list_free(closed, NULL, NULL);
+    heap_free(open, NULL, NULL);
     return EXIT_FAILURE;
 }
+
+
+static void print_point(point_t* v)
+{
+    printf("(%d,%d)\n", v->x, v->y);
+}
+
+
+static void count_heuristics(point_t* v, int id, void* data)
+{
+    int* counter = (int*) data;
+    *counter += f_score[v->x][v->y];
+}
+
 
 int main()
 {
@@ -125,28 +118,36 @@ int main()
     {
         for (int y = 0; y < 5; ++y)
         {
-            point_t* vertex = (point_t*) malloc(sizeof(point_t));
-            vertex->x = x;
-            vertex->y = y;
-            vertex->cost = costs[x][y];
+            point_t* vertex = graph_vertex(graph, 5, 5, x, y, costs[x][y]);
 
-            printf("inserting vertex id=%d\n", (x * 5) + y);
-            list_insert(graph, (x * 5) + y, vertex);
+            printf("inserting vertex id=%d\n", vertex->id);
         }
     }
 
-    point_t* start;
-    point_t* end;
+    point_t* start = graph_find(graph, 5, 5, 0, 0);
+    point_t* goal = graph_find(graph, 5, 5, 4, 4);
 
-    list_search(graph, 0, &start);
-    list_search(graph, (4 * 5) + 4, &end);
+    a_star(graph, 5, 5, start, goal);
 
-    a_star(graph, 5, 5, start, end);
+    printf("Shortest path from (%d,%d) to (%d,%d)\n",
+            start->x, start->y,
+            goal->x, goal->y
+          );
 
-    int total = reverse_path(start, end);
-    printf("Total cost: %d\n", total);
+    graph_traverse(start, goal, (list_cb_t) &print_point, NULL);
 
-    list_free(graph, (list_cb_t) &free);
+    printf("Shortest distance from (%d,%d) to (%d,%d) = %d\n", 
+            start->x, start->y, 
+            goal->x, goal->y, 
+            graph_distance(start, goal) // = goal->dist
+            );
+
+    int total_heuristic = 0;
+    graph_traverse(start, goal, (list_cb_t) &count_heuristics, &total_heuristic);
+
+    printf("Total heuristic: %d\n", total_heuristic);
+
+    list_free(graph, (list_cb_t) &free, NULL);
 
     return 0;
 }

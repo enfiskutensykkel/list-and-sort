@@ -90,7 +90,7 @@ int heap_create(heap_t* heap, size_t init_size)
 }
 
 
-int heap_free(heap_t heap, heap_cb_t cb)
+int heap_free(heap_t heap, heap_cb_t cb, void* data)
 {
     if (heap->locked)
     {
@@ -104,7 +104,7 @@ int heap_free(heap_t heap, heap_cb_t cb)
         {
             for (size_t i = 0; i < heap->elements; ++i)
             {
-                cb(heap->heap[i].point);
+                cb(heap->heap[i].point, data);
             }
         }
 

@@ -15,11 +15,12 @@ typedef struct list* list_t;
  *
  * elem - current element
  * key  - the key associated with the current element
+ * data - user-defined data
  *
  * NB! List operations are not permitted while traversing.
  *     However, changing the element itself is permitted.
  */
-typedef void (*list_cb_t)(point_t* elem, int key);
+typedef void (*list_cb_t)(point_t* elem, int key, void* data);
 
 
 
@@ -55,10 +56,11 @@ size_t list_size(list_t list);
  *
  * list - the list to traverse
  * cb   - the user-defined callback
+ * data - user-defined data
  *
  * Returns a negative value on failure.
  */
-int list_walk(list_t list, list_cb_t cb);
+int list_walk(list_t list, list_cb_t cb, void* data);
 
 
 
@@ -111,11 +113,12 @@ int list_remove(list_t list, int key, point_t** elem);
  *
  * list - the list to destroy
  * cb   - user-defined callback or NULL
+ * data - user-defined data
  *
  * NB! The user-defined callback must manually free element data.
  *
  * Returns a negative value on failure.
  */
-int list_free(list_t list, list_cb_t cb);
+int list_free(list_t list, list_cb_t cb, void* data);
 
 #endif

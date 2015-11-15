@@ -92,7 +92,7 @@ int list_create(list_t* list, size_t init_size)
 }
 
 
-int list_free(list_t list, list_cb_t cb)
+int list_free(list_t list, list_cb_t cb, void* data)
 {
     if (list->locked)
     {
@@ -106,7 +106,7 @@ int list_free(list_t list, list_cb_t cb)
         {
             for (size_t i = 0; i < list->elements; ++i)
             {
-                cb(list->list[i].point, list->list[i].key);
+                cb(list->list[i].point, list->list[i].key, data);
             }
         }
 
@@ -220,7 +220,7 @@ int list_search(list_t list, int key, point_t** elem)
 }
 
 
-int list_walk(list_t list, list_cb_t cb)
+int list_walk(list_t list, list_cb_t cb, void* data)
 {
     if (list->locked)
     {
@@ -230,7 +230,7 @@ int list_walk(list_t list, list_cb_t cb)
 
     for (size_t i = 0; i < list->elements; ++i)
     {
-        cb(list->list[i].point, list->list[i].key);
+        cb(list->list[i].point, list->list[i].key, data);
     }
 
     list->locked = 0;

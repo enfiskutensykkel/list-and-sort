@@ -7,6 +7,13 @@ void print_point(point_t* point, int key)
     printf("point %d: (%d,%d) has cost %d\n", key, point->x, point->y, point->cost);
 }
 
+void user_data_example(point_t* point, int key, void* data)
+{
+    int* elements = (int*) data;
+    print_point(point, key);
+    ++*elements;
+}
+
 void change_cost(point_t* point)
 {
     point->cost++;
@@ -43,7 +50,9 @@ int main()
 
     // Traverse list
     printf("\n");
-    list_walk(list, &print_point);
+    int elements = 0;
+    list_walk(list, &user_data_example, (void*) &elements);
+    printf("counted elements: %d\n", elements);
 
     // Remove element
     list_remove(list, 2, &element);
@@ -52,16 +61,16 @@ int main()
 
     // Traverse list
     printf("\n");
-    list_walk(list, &print_point);
+    list_walk(list, (list_cb_t) &print_point, NULL);
 
     // Traverse list and change cost
     printf("\n");
-    list_walk(list, (list_cb_t) &change_cost);
-    list_walk(list, &print_point);
+    list_walk(list, (list_cb_t) &change_cost, NULL);
+    list_walk(list, (list_cb_t) &print_point, NULL);
 
     // Clean up
     printf("\n");
-    list_free(list, (list_cb_t) &free);
+    list_free(list, (list_cb_t) &free, NULL);
 
     return 0;
 }
