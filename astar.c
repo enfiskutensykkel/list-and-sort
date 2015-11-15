@@ -69,22 +69,25 @@ int a_star(list_t graph, int width, int height, point_t* start, point_t* goal)
         {
             for (int j = MAX(current->y - 1, 0); j <= MIN(current->y + 1, height - 1); ++j)
             {
-                point_t* neighbour = graph_find(graph, width, height, i, j);
-
-                if (list_search(closed, neighbour->id, NULL))
+                if (i != current->x || j!= current->y) // skip self
                 {
-                    continue; // ignore neighbour which is already evaluated
-                }
+                    point_t* neighbour = graph_find(graph, width, height, i, j);
 
-                int tentative_g_score = current->dist + neighbour->cost;
+                    if (list_search(closed, neighbour->id, NULL))
+                    {
+                        continue; // ignore neighbour which is already evaluated
+                    }
 
-                if (tentative_g_score < neighbour->dist)
-                {
-                    neighbour->prev = current;
-                    neighbour->dist = tentative_g_score;
-                    f_score[i][j] = neighbour->dist + heuristic_cost_estimate(neighbour, goal);
+                    int tentative_g_score = current->dist + neighbour->cost;
 
-                    heap_insert(open, neighbour->dist, neighbour);
+                    if (tentative_g_score < neighbour->dist)
+                    {
+                        neighbour->prev = current;
+                        neighbour->dist = tentative_g_score;
+                        f_score[i][j] = neighbour->dist + heuristic_cost_estimate(neighbour, goal);
+
+                        heap_insert(open, neighbour->dist, neighbour);
+                    }
                 }
             }
         }
